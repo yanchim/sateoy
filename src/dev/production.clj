@@ -1,9 +1,9 @@
-(ns build
+(ns production
   (:require
     [shadow.css.build :as cb]
     [clojure.java.io :as io]))
 
-(defn css-release [& args]
+(defn css-release []
   (let [build-state
         (-> (cb/start)
             (cb/index-path (io/file "src" "main") {})
