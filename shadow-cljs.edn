@@ -1,0 +1,24 @@
+;; shadow-cljs configuration
+{:source-paths
+ ["src/main"
+  "src/test"]
+
+ ;; ;; Uncomment this sections if inside GFW.
+ ;; :repositories
+ ;;   {"central" {:url "https://maven.aliyun.com/repository/public"}
+ ;;    "clojars" {:url "https://mirrors.tuna.tsinghua.edu.cn/clojars"}}
+
+ :dependencies
+ []
+
+ :dev-http
+ {8080 "public"}
+
+ :builds
+ {:app
+  {:target :browser
+   :output-dir "public/js"
+   :asset-path "/js"
+   :modules
+   {:main                               ; becomes public/js/main.js
+    {:init-fn home/init}}}}}
