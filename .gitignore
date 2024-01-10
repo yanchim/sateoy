@@ -1,5 +1,7 @@
 node_modules/
-public/js
+
+public/js/
+public/css/
 
 /target
 /checkouts
