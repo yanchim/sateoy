@@ -3,8 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "css:watch": "shadow-cljs development/start",
     "shadow:watch": "shadow-cljs watch app",
-    "shadow:release": "shadow-cljs release app"
+    "shadow:release": "shadow-cljs run production/css-release && shadow-cljs release app"
   },
   "devDependencies": {
     "shadow-cljs": "2.26.3"
