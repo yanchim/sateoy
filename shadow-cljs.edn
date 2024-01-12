@@ -23,4 +23,4 @@
    :asset-path "/js"
    :modules
    {:main                               ; becomes public/js/main.js
-    {:init-fn sateoy.home/init}}}}}
+    {:init-fn sateoy.core/init}}}}}
