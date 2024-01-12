@@ -41,11 +41,10 @@
       [:div "一起建设爱国者の日常"]]]]])
 
 (defn chat []
-  [:div {:class (css :text-center :h-screen)
+  [:div {:class (css :min-h-screen :flex :flex-col)
          :style {:background-image "url('images/weiwei.jpg')"
-                 :background-repeat "no-repeat"
-                 :background-size "cover"
-                 :background-attachment "fixed"}}
+                 :background-repeat "repeat-y"
+                 :background-size "100% auto"}}
    [:header {:class (css :bg-red-800 :text-white
                          :w-full :h-16
                          :text-3xl :font-mono
@@ -59,9 +58,21 @@
              :viewBox "0 -960 960 960"}
        [:path {:fill "white" :d "m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"}]]]]
     [:h1 {:class (css :text-center :flex-1)} "维为道来"]
-    [:div {:class (css :flex-1)}]]])
+    [:div {:class (css :flex-1)}]]
+   [:div {:class (css :h-16)}
+    [:ul {:id "msg-list"}]]
+   [:footer {:class (css :bg-transparent :p-2 :h-12 :bottom-0 :w-full :flex :justify-center :sticky :mt-auto)}
+    [:div {:class (css :w-full :flex :items-center :text-gray-700)}
+     [:input {:type "text" :id "name" :placeholder "昵称" :class (css :grow-0 :p-1.5) :required true}]
+     [:input {:type "text" :id "name" :placeholder "你不了解中国而妄下论断" :class (css :grow :mx-1 :px-2 :py-1.5)}]
+     [:button {:id "send"
+               :on-click #(.log js/console "send")
+               :class (css :text-white :bg-red-500 [:hover {:background-color "red"}] :bold :rounded :px-3 :py-1.5 :w-fit :transition-colors :duration-150)}
+      "发送"]]]])
 
 (defn core []
   (if (:show @state/chat)
-    [chat]
+    (do
+      (.log js/console "get message")
+      [chat])
     [home]))
