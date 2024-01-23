@@ -43,10 +43,6 @@
 (defn send-message []
   (let [name (if (empty? @state/chat-name) "爱国者" @state/chat-name)
         timestamp (.now js/Date)]
-    (ws/send-message! {:type "shout"
-                       :name name
-                       :msg @state/chat-msg
-                       :inserted_at timestamp})
     (reset! state/chat-msg "")
     (.scrollTo js/window 0 (.. js/document -documentElement -scrollHeight))))
 
@@ -142,8 +138,6 @@
 (defn core []
   (if @state/show-chat?
     (do
-      (ws/connect!
-       (str "ws://" (. js/location -hostname) ":3000/chat")
-       handle-response)
+      (.log js/console "chsk-state" ws/state)
       [chat])
     [home]))

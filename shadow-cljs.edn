@@ -11,7 +11,8 @@
 
  :dependencies
  [[reagent "1.2.0"]
-  [com.thheller/shadow-css "0.4.5"]]
+  [com.thheller/shadow-css "0.4.5"]
+  [com.taoensso/sente "1.19.2"]]
 
  :dev-http
  {8080 "public"}

@@ -1,21 +1,17 @@
-(ns sateoy.websocket)
+(ns sateoy.websocket
+  (:require-macros
+   [cljs.core.async.macros :as asyncm :refer (go go-loop)])
+  (:require
+   [cljs.core.async :as async :refer (<! >! put! chan)]
+   [taoensso.sente  :as sente :refer (cb-success?)]))
 
-(defonce channel (atom nil))
+(let [{:keys [chsk ch-recv send-fn state]}
+      (sente/make-channel-socket-client!
+       "/chat"
+       {:port 3000 :type :auto})]
 
-(defn connect! [url receive-handler]
-  (if-let [chan (js/WebSocket. url)]
-    (do
-      (.log js/console "Connected!")
-      (set! (.-onmessage chan) #(->> % .-data receive-handler))
-      (reset! channel chan))
-    (throw (ex-info "WebSocket connection failed." {:url url}))))
-
-(defn send-message! [msg]
-  (if-let [chan @channel]
-    (.send chan (pr-str msg))
-    (throw (ex-info "Couldn't send message, channel isn't open!"
-                    {:message msg}))))
-
-(defn disconnect! []
-  (.close @channel)
-  (reset! channel nil))
+  (def chsk       chsk)
+  (def ch-chsk    ch-recv) ; ChannelSocket's receive channel
+  (def chsk-send! send-fn) ; ChannelSocket's send API fn
+  (def chsk-state state)   ; Watchable, read-only atom
+  )
