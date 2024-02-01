@@ -3,8 +3,7 @@
    [cljs.core.async.macros :as asyncm :refer (go go-loop)])
   (:require
    [cljs.core.async :as async :refer (<! >! put! chan)]
-   [taoensso.sente  :as sente :refer (cb-success?)]
-   [taoensso.timbre :as timbre]))
+   [taoensso.sente  :as sente :refer (cb-success?)]))
 
 ;;;; Logging config
 
@@ -12,7 +11,6 @@
 
 (defn- set-min-log-level! [level]
   (sente/set-min-log-level! level) ; Min log level for internal Sente namespaces
-  (timbre/set-ns-min-level! level) ; Min log level for this namespace
   (reset! min-log-level     level))
 
 (set-min-log-level! #_:trace :debug #_:info #_:warn)

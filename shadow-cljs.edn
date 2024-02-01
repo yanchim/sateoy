@@ -11,7 +11,6 @@
 
  :dependencies
  [[com.taoensso/sente "1.19.2"]
-  [com.taoensso/timbre "6.3.1"]
   [com.thheller/shadow-css "0.4.5"]
   [reagent "1.2.0"]]
 

@@ -116,15 +116,19 @@
    (chat-msg-list)
    [:footer {:class (css :bg-transparent :p-2 :h-12 :bottom-0 :w-full :flex :justify-center :sticky :mt-auto)}
     [:div {:class (css :w-full :flex :items-center :text-gray-700)}
-     [:input {:type "text" :id "name" :placeholder "昵称" :class (css :grow-0 :p-1.5)
+     [:input {:type "text" :id "name" :placeholder "昵称"
+              :class (css :grow-0 :p-1.5) :style {:width "16.67%"}
               :value @state/chat-name :on-change #(reset! state/chat-name (.. % -target -value))}]
-     [:input {:type "text" :id "msg" :placeholder "你不了解中国而妄下论断" :class (css :grow :mx-1 :px-2 :py-1.5)
+     [:input {:type "text" :id "msg" :placeholder "你不了解中国而妄下论断"
+              :class (css :grow :mx-1 :px-2 :py-1.5)
               :value @state/chat-msg
               :on-change #(reset! state/chat-msg (.. % -target -value))
               :on-key-press (when-not (empty? @state/chat-msg) keypress-handler)}]
      [:button {:id "send"
                :on-click (when-not (empty? @state/chat-msg) click-handler)
-               :class (css :text-white :bg-red-500 [:hover {:background-color "red"}] :bold :rounded :px-3 :py-1.5 :w-fit :transition-colors :duration-150)}
+               :class (css :text-white :bg-red-500
+                           [:hover {:background-color "red"}]
+                           :bold :rounded :px-3 :py-1.5 :w-fit :transition-colors :duration-150)}
       "发送"]]]])
 
 (defn handle-response [response]
