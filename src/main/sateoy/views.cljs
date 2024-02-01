@@ -137,7 +137,5 @@
 
 (defn core []
   (if @state/show-chat?
-    (do
-      (.log js/console "chsk-state" ws/state)
-      [chat])
+    [chat]
     [home]))
