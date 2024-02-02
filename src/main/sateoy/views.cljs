@@ -1,6 +1,5 @@
 (ns sateoy.views
   (:require
-   [cljs.reader :refer [read-string]]
    [goog.string :refer [format]]
    [sateoy.components :as component]
    [sateoy.state :as state]
@@ -43,6 +42,9 @@
 (defn send-message []
   (let [name (if (empty? @state/chat-name) "爱国者" @state/chat-name)
         timestamp (.now js/Date)]
+    (ws/chsk-send! [:chat/shout {:username name
+                                 :timestamp timestamp
+                                 :msg @state/chat-msg}])
     (reset! state/chat-msg "")
     (.scrollTo js/window 0 (.. js/document -documentElement -scrollHeight))))
 
@@ -96,7 +98,7 @@
 
 (defn chat []
   [:div {:class (css :min-h-screen :flex :flex-col)
-         :style {:background-image "url('images/weiwei.jpg')"
+         :style {;:background-image "url('images/weiwei.jpg')"
                  :background-repeat "repeat-y"
                  :background-size "100% auto"}}
    [:header {:class (css :bg-red-800 :text-white
@@ -130,14 +132,6 @@
                            [:hover {:background-color "red"}]
                            :bold :rounded :px-3 :py-1.5 :w-fit :transition-colors :duration-150)}
       "发送"]]]])
-
-(defn handle-response [response]
-  (.log js/console "server" response)
-  (let [{:keys [type name msg inserted_at]} (read-string response)]
-    (when (= type "shout")
-      (swap! state/chat-msg-list conj {:msg msg
-                                       :name name
-                                       :inserted_at inserted_at}))))
 
 (defn core []
   (if @state/show-chat?
