@@ -17,6 +17,7 @@
   ;;                                      :name name
   ;;                                      :inserted_at inserted_at})))
   )
+
 (defn ->output!
   ([] (->output!! "\n"))
   ([fmt & args]
@@ -71,10 +72,10 @@
   [{:as ev-msg :keys [?data]}]
   (let [[old-state-map new-state-map] (vector ?data)]
     (cond
-      (:first-open? new-state-map) (->output! "Channel socket FIRST OPENED: %s"  new-state-map)
-      (:opened?     new-state-map) (->output! "Channel socket OPENED: %s"        new-state-map)
-      (:closed?     new-state-map) (->output! "Channel socket CLOSED: %s"        new-state-map)
-      :else                        (->output! "Channel socket state changed: %s" new-state-map))))
+      (:first-open? new-state-map) (->output! "Channel socket FIRST OPENED: "  new-state-map)
+      (:opened?     new-state-map) (->output! "Channel socket OPENED: "        new-state-map)
+      (:closed?     new-state-map) (->output! "Channel socket CLOSED: "        new-state-map)
+      :else                        (->output! "Channel socket state changed: " new-state-map))))
 
 (defmethod -event-msg-handler :chsk/recv
   [{:as ev-msg :keys [?data]}]
