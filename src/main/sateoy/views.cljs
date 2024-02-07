@@ -1,6 +1,7 @@
 (ns sateoy.views
   (:require
    [goog.string :refer [format]]
+   [reagent.core :refer [atom]]
    [sateoy.components :as component]
    [sateoy.state :as state]
    [sateoy.websocket :as ws]
@@ -80,21 +81,34 @@
    [:ul {:id "msg-list"}
     (for [[idx msg] (map-indexed vector @state/chat-msg-list)]
       ^{:key (str idx)}
-      [:div {:class (css :flex :flex-row
-                         :mx-2 :py-2
-                         :border-b :border-slate-300
-                         :text-red-800
-                         [:hover {:background-color "#333"}])
-             :style {:width "95%"}}
-       [:div {:class (css :text-left :font-semibold :break-words)
-              :style {:width "20%"}}
-        (:username msg)
-        [:div {:class (css :text-xs :mr-1)}
-         [:span {:class (css :font-thin :mr-1)} (timestamp-date (:timestamp msg))]
-         [:span (timestamp-time (:timestamp msg))]]]
-       [:div {:class (css :flex :mx-1 :grow)
-              :style {:width "60%"}}
-        (:msg msg)]])]])
+      [:li
+       [:div {:class (css :flex :flex-row
+                          :mx-2 :py-2
+                          :border-b :border-slate-300
+                          :text-red-800
+                          [:hover {:background-color "#333"}])
+              :style {:width "95%"}}
+        [:div {:class (css :text-left :font-semibold)
+               :style {:width "20%" :overflow-wrap "break-word"}}
+         (:username msg)
+         [:div {:class (css :text-xs :mr-1)}
+          [:span {:class (css :font-thin :w-full :inline-block)}
+           (timestamp-date (:timestamp msg))]
+          [:span {:class (css :w-full :inline-block)}
+           (timestamp-time (:timestamp msg))]]]
+        [:div {:class (css :mx-1 :flex :grow)
+               :style {:width "60%" :word-break "break-all"}}
+         (:msg msg)]]])]])
+
+(defn cjk-input [opts]
+  (let [compo-on? (atom false)
+        on-change-fn (:on-change-fn opts)]
+    [:input (merge {:type "text"
+                    :on-composition-start #(reset! compo-on? true)
+                    :on-composition-end #(reset! compo-on? false)
+                    :on-change #(when-not @compo-on?
+                                  (on-change-fn %))}
+                   (dissoc opts :on-change-fn))]))
 
 (defn chat []
   [:div {:class (css :min-h-screen :flex :flex-col)
@@ -118,14 +132,15 @@
    (chat-msg-list)
    [:footer {:class (css :bg-transparent :p-2 :h-12 :bottom-0 :w-full :flex :justify-center :sticky :mt-auto)}
     [:div {:class (css :w-full :flex :items-center :text-gray-700)}
-     [:input {:type "text" :id "name" :placeholder "昵称"
-              :class (css :grow-0 :p-1.5) :style {:width "16.67%"}
-              :value @state/chat-name :on-change #(reset! state/chat-name (.. % -target -value))}]
-     [:input {:type "text" :id "msg" :placeholder "你不了解中国而妄下论断"
-              :class (css :grow :mx-1 :px-2 :py-1.5)
-              :value @state/chat-msg
-              :on-change #(reset! state/chat-msg (.. % -target -value))
-              :on-key-press (when-not (empty? @state/chat-msg) keypress-handler)}]
+     (cjk-input {:id "name" :placeholder "昵称"
+                 :class (css :grow-0 :p-1.5) :style {:width "16.67%"}
+                 :value @state/chat-name
+                 :on-change-fn #(reset! state/chat-name (.. % -target -value))})
+     (cjk-input {:id "msg" :placeholder "你不了解中国而妄下论断"
+                 :class (css :grow :mx-1 :px-2 :py-1.5)
+                 :value @state/chat-msg
+                 :on-change #(reset! state/chat-msg (.. % -target -value))
+                 :on-key-press (when-not (empty? @state/chat-msg) keypress-handler)})
      [:button {:id "send"
                :on-click (when-not (empty? @state/chat-msg) click-handler)
                :class (css :text-white :bg-red-500

@@ -43,7 +43,7 @@
       (sente/make-channel-socket-client!
        "/chat"                          ; Must match server Ring routing URL
        "for-chat"
-       {:port 3000 :type :auto})]
+       {:host "localhost" :port 3000 :type :auto})]
 
   (def chsk       chsk)
   (def ch-chsk    ch-recv) ; ChannelSocket's receive channel

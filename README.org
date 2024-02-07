@@ -7,3 +7,10 @@ To start:
    inside Emacs with =cider-jack-in-cljs=.
 
 Now you can visit [[http://localhost:8080][localhost:8080]] from your browser.
+
+** Release
+
+#+begin_src bash-ts
+  npx shadow-cljs run production/css-release
+  npx shadow-cljs release app
+#+end_src
