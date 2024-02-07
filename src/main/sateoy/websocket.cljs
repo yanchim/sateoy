@@ -89,9 +89,9 @@
 (defmethod -event-msg-handler :chat/broadcast
   [{:as ev-msg :keys [?data]}]
   (->output! "receive boardcast")
-  ;; (let [{:keys [username msg timestamp]} ?data]
-  ;;   (->output! ": " username msg timestamp))
-  )
+  (let [{:keys [username msg timestamp]} ?data]
+    (reset! state/chat-msg-list
+            (conj @state/chat-msg-list {:username username :msg msg :timestamp timestamp}))))
 
 ;;;; Sente event router (our `event-msg-handler` loop)
 

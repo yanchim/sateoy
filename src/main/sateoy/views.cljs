@@ -88,17 +88,17 @@
              :style {:width "95%"}}
        [:div {:class (css :text-left :font-semibold :break-words)
               :style {:width "20%"}}
-        (:name msg)
+        (:username msg)
         [:div {:class (css :text-xs :mr-1)}
-         [:span {:class (css :font-thin :mr-1)} (timestamp-date (:inserted_at msg))]
-         [:span (timestamp-time (:inserted_at msg))]]]
+         [:span {:class (css :font-thin :mr-1)} (timestamp-date (:timestamp msg))]
+         [:span (timestamp-time (:timestamp msg))]]]
        [:div {:class (css :flex :mx-1 :grow)
               :style {:width "60%"}}
         (:msg msg)]])]])
 
 (defn chat []
   [:div {:class (css :min-h-screen :flex :flex-col)
-         :style {;:background-image "url('images/weiwei.jpg')"
+         :style {:background-image "url('images/weiwei.jpg')"
                  :background-repeat "repeat-y"
                  :background-size "100% auto"}}
    [:header {:class (css :bg-red-800 :text-white
