@@ -101,12 +101,12 @@
          (:msg msg)]]])]])
 
 (defn cjk-input [opts]
-  (let [compo-on? (atom false)
+  (let [composing? (atom false)
         on-change-fn (:on-change-fn opts)]
     [:input (merge {:type "text"
-                    :on-composition-start #(reset! compo-on? true)
-                    :on-composition-end #(reset! compo-on? false)
-                    :on-change #(when-not @compo-on?
+                    :on-composition-start #(reset! composing? true)
+                    :on-composition-end #(reset! composing? false)
+                    :on-change #(when-not @composing?
                                   (on-change-fn %))}
                    (dissoc opts :on-change-fn))]))
 
@@ -139,7 +139,7 @@
      (cjk-input {:id "msg" :placeholder "你不了解中国而妄下论断"
                  :class (css :grow :mx-1 :px-2 :py-1.5)
                  :value @state/chat-msg
-                 :on-change #(reset! state/chat-msg (.. % -target -value))
+                 :on-change-fn #(reset! state/chat-msg (.. % -target -value))
                  :on-key-press (when-not (empty? @state/chat-msg) keypress-handler)})
      [:button {:id "send"
                :on-click (when-not (empty? @state/chat-msg) click-handler)
