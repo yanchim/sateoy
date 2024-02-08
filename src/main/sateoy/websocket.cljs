@@ -9,14 +9,8 @@
 
 ;;;; Util for logging output to on-screen
 
-(defn ->output!! [response]
-  (.log js/console "server" response)
-  ;; (let [{:keys [type name msg inserted_at]} (read-string response)]
-  ;;   (when (= type "shout")
-  ;;     (swap! state/chat-msg-list conj {:msg msg
-  ;;                                      :name name
-  ;;                                      :inserted_at inserted_at})))
-  )
+(defn ->output!! [msg]
+  (.log js/console "msg: " msg))
 
 (defn ->output!
   ([] (->output!! "\n"))
@@ -39,18 +33,16 @@
 (let [;; Serializtion format, must use same val for client + server:
       packer :edn                       ; Default packer, a good choice im most cases
       ;; (sente-transit/get-transit-packer) ; Needs Transit dep
-      ]
-      (defonce chsk-client
-        (sente/make-channel-socket-client!
-         "/chat"                          ; Must match server Ring routing URL
-         "for-chat"
-         {:protocol :http :host "localhost" :port 3000 :packer packer})))
+      {:keys [chsk ch-recv send-fn state]}
+      (sente/make-channel-socket-client!
+       "/chat"                          ; Must match server Ring routing URL
+       "for-chat"
+       {:protocol :http :host "localhost" :port 3000 :packer packer})]
 
-(let [{:keys [chsk ch-recv send-fn state]} chsk-client]
-  (defonce chsk-impl  chsk)
-  (defonce ch-chsk    ch-recv) ; ChannelSocket's receive channel
-  (defonce chsk-send! send-fn) ; ChannelSocket's send API fn
-  (defonce chsk-state state)   ; Watchable, read-only atom
+  (def chsk-impl  chsk)
+  (def ch-chsk    ch-recv) ; ChannelSocket's receive channel
+  (def chsk-send! send-fn) ; ChannelSocket's send API fn
+  (def chsk-state state)   ; Watchable, read-only atom
   )
 
 ;;;; Sente event handlers
@@ -70,14 +62,18 @@
   [{:as ev-msg :keys [event]}]
   (->output! "Unhandled event: %s" event))
 
+;; [{:type :ws, :open? true, :ever-opened? true, :csrf-token "for-chat", :uid :sente/nil-uid, :handshake-data nil}
+;;  {:open-changed? true, :uid :sente/nil-uid, :type :ws, :handshake-data nil, :closed? true, :ever-opened? true, :open? false, :csrf-token "for-chat", :last-close {:udt 1707400359055, :reason :clean}, :last-ws-close {:udt 1707400359055, :code 1001, :reason "", :clean? true, :ev #object[CloseEvent [object CloseEvent]]}}
+;;  true]
+
 (defmethod -event-msg-handler :chsk/state
   [{:as ev-msg :keys [?data]}]
-  (let [[old-state-map new-state-map] (vector ?data)]
+  (let [[old-state-map new-state-map status] (vector ?data)]
     (cond
-      (:first-open? new-state-map) (->output! "Channel socket FIRST OPENED: "  new-state-map)
-      (:opened?     new-state-map) (->output! "Channel socket OPENED: "        new-state-map)
-      (:closed?     new-state-map) (->output! "Channel socket CLOSED: "        new-state-map)
-      :else                        (->output! "Channel socket state changed: " new-state-map))))
+      (:ever-opened? new-state-map) (->output! "Channel socket EVER OPENED: "  new-state-map)
+      (:opened?     new-state-map)  (->output! "Channel socket OPENED: "        new-state-map)
+      (:closed?     new-state-map)  (->output! "Channel socket CLOSED: "        new-state-map)
+      :else                         (->output! "Channel socket state changed: " new-state-map))))
 
 (defmethod -event-msg-handler :chsk/recv
   [{:as ev-msg :keys [?data]}]
