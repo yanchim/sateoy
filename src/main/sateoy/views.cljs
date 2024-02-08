@@ -46,14 +46,30 @@
     (ws/chsk-send! [:chat/shout {:username name
                                  :timestamp timestamp
                                  :msg @state/chat-msg}])
+    (set! (.-value (.getElementById js/document "msg")) "")
     (reset! state/chat-msg "")
     (.scrollTo js/window 0 (.. js/document -documentElement -scrollHeight))))
 
+(defn update-msg?
+  "Update `username` and `msg` atom since `cjk-input` cannot work...
+  Return `false` if `msg`'value is empty, otherwise `true`."
+  []
+  (let [name (.-value (.getElementById js/document "name"))
+        msg (.-value (.getElementById js/document "msg"))]
+    (if (empty? msg)
+      false
+      (do
+        (reset! state/chat-name name)
+        (reset! state/chat-msg msg)
+        true))))
+
 (defn click-handler []
-  (send-message))
+  (when (update-msg?)
+    (send-message)))
 
 (defn keypress-handler [event]
-  (when (#{"Enter" "NumpadEnter"} (.-code event))
+  (when (and (#{"Enter" "NumpadEnter"} (.-code event))
+             (update-msg?))
     (send-message)))
 
 (defn timestamp-date
@@ -100,6 +116,7 @@
                :style {:width "60%" :word-break "break-all"}}
          (:msg msg)]]])]])
 
+;; FIXME: why on-composition-end not triggered...
 (defn cjk-input [opts]
   (let [composing? (atom false)
         on-change-fn (:on-change-fn opts)]
@@ -132,17 +149,22 @@
    (chat-msg-list)
    [:footer {:class (css :bg-transparent :p-2 :h-12 :bottom-0 :w-full :flex :justify-center :sticky :mt-auto)}
     [:div {:class (css :w-full :flex :items-center :text-gray-700)}
-     (cjk-input {:id "name" :placeholder "昵称"
-                 :class (css :grow-0 :p-1.5) :style {:width "16.67%"}
-                 :value @state/chat-name
-                 :on-change-fn #(reset! state/chat-name (.. % -target -value))})
-     (cjk-input {:id "msg" :placeholder "你不了解中国而妄下论断"
-                 :class (css :grow :mx-1 :px-2 :py-1.5)
-                 :value @state/chat-msg
-                 :on-change-fn #(reset! state/chat-msg (.. % -target -value))
-                 :on-key-press (when-not (empty? @state/chat-msg) keypress-handler)})
+     ;; (cjk-input {:id "name" :placeholder "昵称"
+     ;;             :class (css :grow-0 :p-1.5) :style {:width "16.67%"}
+     ;;             :value @state/chat-name
+     ;;             :on-change-fn #(reset! state/chat-name (.. % -target -value))})
+     ;; (cjk-input {:id "msg" :placeholder "你不了解中国而妄下论断"
+     ;;             :class (css :grow :mx-1 :px-2 :py-1.5)
+     ;;             :value @state/chat-msg
+     ;;             :on-change-fn #(reset! state/chat-msg (.. % -target -value))
+     ;;             :on-key-press (when-not (empty? @state/chat-msg) keypress-handler)})
+     [:input {:id "name" :placeholder "昵称"
+              :class (css :grow-0 :p-1.5) :style {:width "16.67%"}}]
+     [:input {:id "msg" :placeholder "你不了解中国而妄下论断"
+              :class (css :grow :mx-1 :px-2 :py-1.5)
+              :on-key-press keypress-handler}]
      [:button {:id "send"
-               :on-click (when-not (empty? @state/chat-msg) click-handler)
+               :on-click click-handler
                :class (css :text-white :bg-red-500
                            [:hover {:background-color "red"}]
                            :bold :rounded :px-3 :py-1.5 :w-fit :transition-colors :duration-150)}

@@ -39,16 +39,18 @@
 (let [;; Serializtion format, must use same val for client + server:
       packer :edn                       ; Default packer, a good choice im most cases
       ;; (sente-transit/get-transit-packer) ; Needs Transit dep
-      {:keys [chsk ch-recv send-fn state]}
-      (sente/make-channel-socket-client!
-       "/chat"                          ; Must match server Ring routing URL
-       "for-chat"
-       {:host "localhost" :port 3000 :type :auto})]
+      ]
+      (defonce chsk-client
+        (sente/make-channel-socket-client!
+         "/chat"                          ; Must match server Ring routing URL
+         "for-chat"
+         {:protocol :http :host "localhost" :port 3000 :packer packer})))
 
-  (def chsk       chsk)
-  (def ch-chsk    ch-recv) ; ChannelSocket's receive channel
-  (def chsk-send! send-fn) ; ChannelSocket's send API fn
-  (def chsk-state state)   ; Watchable, read-only atom
+(let [{:keys [chsk ch-recv send-fn state]} chsk-client]
+  (defonce chsk-impl  chsk)
+  (defonce ch-chsk    ch-recv) ; ChannelSocket's receive channel
+  (defonce chsk-send! send-fn) ; ChannelSocket's send API fn
+  (defonce chsk-state state)   ; Watchable, read-only atom
   )
 
 ;;;; Sente event handlers
